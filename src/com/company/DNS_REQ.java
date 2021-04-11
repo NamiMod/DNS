@@ -1,8 +1,6 @@
 package com.company;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.PrintStream;
+import java.io.*;
 import java.net.Socket;
 
 /**
@@ -19,30 +17,24 @@ import java.net.Socket;
 
 public class DNS_REQ {
 
-    public static void main(String[] args) {
-
-        String server = "1.1.1.1";
-        int port = 53;
-
+    /**
+     * send message to local server
+     * @throws IOException cant send message
+     */
+    public void Send_Message_To_Local_Server() throws IOException {
+        Socket socket = new Socket("127.0.0.1", 5061);
+        PrintWriter output = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
+        BufferedReader read = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         try {
-
-            Socket socket = new Socket(server, port);
-            PrintStream out = new PrintStream(socket.getOutputStream());
-            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-
-            // Read data from the server until we finish reading the document
-            String line = in.readLine();
-            while (line != null) {
-                System.out.println(line);
-                line = in.readLine();
-            }
-
-            // Close our streams
-            in.close();
-            out.close();
-            socket.close();
+            output.println("Hello Server");
+            output.flush();
         } catch (Exception e) {
             e.printStackTrace();
+        }
+        finally {
+            socket.close();
+            output.close();
+            read.close();
         }
     }
 }
