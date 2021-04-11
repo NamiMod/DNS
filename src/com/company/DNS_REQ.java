@@ -37,4 +37,27 @@ public class DNS_REQ {
             read.close();
         }
     }
+
+
+    /**
+     * send message to DNS Server
+     * @throws IOException cant send message
+     */
+    public void Send_Message_To_DNS_Server() throws IOException {
+        Socket socket = new Socket("8.8.8.8", 53);
+        PrintWriter output = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
+        BufferedReader read = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        try {
+            output.println("www.google.com");
+            output.flush();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        finally {
+            socket.close();
+            output.close();
+            read.close();
+        }
+    }
+
 }
