@@ -15,14 +15,14 @@ import java.net.Socket;
  * @author Seyed Nami Modarressi
  * @version 0.1
  */
-public class DNS_SERVER {
+public class Server {
 
     private ServerSocket serversocket;
     private BufferedReader input;
     private PrintWriter output;
 
     public static void main(String[] args) {
-        DNS_SERVER server = new DNS_SERVER();
+        Server server = new Server();
         try {
             server.start();
         } catch (IOException e) {
@@ -44,7 +44,7 @@ public class DNS_SERVER {
             output = new PrintWriter(new OutputStreamWriter(client.getOutputStream()));
             try {
                 String message = input.readLine();
-                System.out.println("Client message :" + message);
+                System.out.println("Client message : " + message);
                 if (message.equals("Exit")){
                     break;
                 }else {
