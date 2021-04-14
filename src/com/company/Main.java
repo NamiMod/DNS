@@ -8,7 +8,7 @@ public class Main {
         DNS_REQ req = new DNS_REQ();
         // req.Send_Message_To_DNS_Server();
         // req.Send_Message_To_Local_Server();
-        // req.Send_Req_To_DNS("google.com");
+         req.Send_Req_To_DNS("apple.com");
 
     }
 }
