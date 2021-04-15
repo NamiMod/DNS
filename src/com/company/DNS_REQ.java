@@ -19,6 +19,7 @@ public class DNS_REQ {
 
     /**
      * send message to local server
+     *
      * @throws IOException cant send message
      */
     public void Send_Message_To_Local_Server() throws IOException {
@@ -30,8 +31,7 @@ public class DNS_REQ {
             output.flush();
         } catch (Exception e) {
             e.printStackTrace();
-        }
-        finally {
+        } finally {
             socket.close();
             output.close();
             read.close();
@@ -40,6 +40,7 @@ public class DNS_REQ {
 
     /**
      * send message to DNS Server
+     *
      * @throws IOException cant send message
      */
     public void Send_Message_To_DNS_Server() throws IOException {
@@ -51,8 +52,7 @@ public class DNS_REQ {
             output.flush();
         } catch (Exception e) {
             e.printStackTrace();
-        }
-        finally {
+        } finally {
             socket.close();
             output.close();
             read.close();
@@ -61,15 +61,17 @@ public class DNS_REQ {
 
     /**
      * send domain to DNS Server and get result
-     * @throws IOException cant send message
+     *
      * @param domain domain name
+     * @throws IOException cant send message
+     * @return possible or not
      */
-    public void Send_Req_To_DNS(String domain) throws IOException {
+    public String Send_Req_To_DNS_Recursive(String domain) throws IOException {
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         DataOutputStream outStream = new DataOutputStream(out);
 
-        //  -> Create DNS Packet <-
+        // Set Flags and data
 
         // Identifier
         outStream.writeShort(0x9999);
@@ -89,13 +91,14 @@ public class DNS_REQ {
         // Additional Record Count
         outStream.writeShort(0x0000);
 
+        // Add domain
         for (String domainPart : domain.split("\\.")) {
             byte[] domainBytes = domainPart.getBytes();
             outStream.writeByte(domainBytes.length);
             outStream.write(domainBytes);
         }
 
-        // No more parts
+        // Done
         outStream.writeByte(0x00);
 
         // Type 0x01 = A
@@ -104,54 +107,68 @@ public class DNS_REQ {
         // Class 0x01 = IN
         outStream.writeShort(0x0001);
 
-        byte[] Frame = out.toByteArray();
+        byte[] REQ_Packet = out.toByteArray();
 
         // Send DNS Packet
         DatagramSocket socket = new DatagramSocket();
-        DatagramPacket dnsReqPacket = new DatagramPacket(Frame, Frame.length,InetAddress.getByName("8.8.8.8"), 53);
+        DatagramPacket dnsReqPacket = new DatagramPacket(REQ_Packet, REQ_Packet.length, InetAddress.getByName("8.8.8.8"), 53);
         socket.send(dnsReqPacket);
 
-        // Await response from DNS server
+        // get Response from server
         byte[] buf = new byte[1024];
         DatagramPacket packet = new DatagramPacket(buf, buf.length);
         socket.receive(packet);
 
+        // Parsing response to get IP address
+
         DataInputStream din = new DataInputStream(new ByteArrayInputStream(buf));
 
-        System.out.println("Transaction ID: 0x" + String.format("%x", din.readShort()));
-        System.out.println("Flags: 0x" + String.format("%x", din.readShort()));
-        System.out.println("Questions: 0x" + String.format("%x", din.readShort()));
-        System.out.println("Answers RRs: 0x" + String.format("%x", din.readShort()));
-        System.out.println("Authority RRs: 0x" + String.format("%x", din.readShort()));
-        System.out.println("Additional RRs: 0x" + String.format("%x", din.readShort()));
+        System.out.println("Response Data :");
 
-        int recLen = 0;
-        while ((recLen = din.readByte()) > 0) {
-            byte[] record = new byte[recLen];
+        for (int i = 0; i < 6; i++) {
+            System.out.printf("%x%n", din.readShort());
+        }
 
-            for (int i = 0; i < recLen; i++) {
-                record[i] = din.readByte();
+        int domain_counter;
+        while ((domain_counter = din.readByte()) > 0) {
+            byte[] domain_part = new byte[domain_counter];
+
+            for (int i = 0; i < domain_counter; i++) {
+                domain_part[i] = din.readByte();
+            }
+            System.out.println(new String(domain_part));
+        }
+
+        for (int i = 0; i < 7; i++) {
+            System.out.printf("%x%n", din.readShort());
+        }
+
+        short address_size = din.readShort();
+        System.out.printf("%x%n", address_size);
+
+        if (address_size == 4) {
+
+            String Address = "";
+            System.out.print("Address: ");
+            for (int i = 0; i < address_size; i++) {
+                Address += String.format("%d", (din.readByte()) & 0xFF) + ".";
             }
 
-            System.out.println("Record: " + new String(record, "UTF-8"));
-        }
+            int counter = 0;
+            String result= "";
+            for (char C : Address.toCharArray()) {
+                counter++;
+                if (counter != Address.length()) {
+                    System.out.print(C);
+                    result=result+C;
+                }
+            }
 
+            return result;
 
-        System.out.println("Record Type: 0x" + String.format("%x", din.readShort()));
-        System.out.println("Class: 0x" + String.format("%x", din.readShort()));
-        System.out.println("Field: 0x" + String.format("%x", din.readShort()));
-        System.out.println("Type: 0x" + String.format("%x", din.readShort()));
-        System.out.println("Class: 0x" + String.format("%x", din.readShort()));
-        System.out.println("TTL: 0x" + String.format("%x", din.readInt()));
-
-        short addrLen = din.readShort();
-        System.out.println("Len: 0x" + String.format("%x", addrLen));
-
-        System.out.print("Address: ");
-        for (int i = 0; i < addrLen; i++ ) {
-            System.out.print("" + String.format("%d", (din.readByte() & 0xFF)) + ".");
+        }else {
+            System.out.println("Address : Not Found");
+            return null;
         }
     }
-
-
 }
