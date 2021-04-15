@@ -20,7 +20,27 @@ public class Main {
 
         if (mode.equals("R")) {
 
+            String cacheResult = cache.getIP(domain);
+            if (cacheResult != null) {
+                System.out.println("Address (from cache) : " + cacheResult);
+            } else {
+                String result = req.Send_Req_To_DNS_Recursive(domain);
+                if (result != null) {
+                    cache.update(domain, result);
+                }
+            }
+
         } else if (mode.equals("I")) {
+
+            String cacheResult = cache.getIP(domain);
+            if (cacheResult != null) {
+                System.out.println("Address (from cache) : " + cacheResult);
+            } else {
+                String result = req.Send_Req_To_DNS_Iterative(domain);
+                if (result != null) {
+                    cache.update(domain, result);
+                }
+            }
 
         } else {
             System.out.println("Invalid input !");

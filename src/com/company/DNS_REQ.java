@@ -61,6 +61,7 @@ public class DNS_REQ {
 
     /**
      * send domain to DNS Server and get result
+     * Recursive
      *
      * @param domain domain name
      * @throws IOException cant send message
@@ -171,4 +172,17 @@ public class DNS_REQ {
             return null;
         }
     }
+
+    /**
+     * send domain to DNS Server and get result
+     * Iterative
+     *
+     * @param domain domain name
+     * @throws IOException cant send message
+     * @return possible or not
+     */
+    public String Send_Req_To_DNS_Iterative(String domain) throws IOException {
+        return null;
+    }
+
 }
