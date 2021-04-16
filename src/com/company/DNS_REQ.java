@@ -65,7 +65,7 @@ public class DNS_REQ {
      *
      * @param domain domain name
      * @throws IOException cant send message
-     * @return possible or not
+     * @return IP as String
      */
     public String Send_Req_To_DNS_Recursive(String domain) throws IOException {
 
@@ -179,7 +179,7 @@ public class DNS_REQ {
      *
      * @param domain domain name
      * @throws IOException cant send message
-     * @return possible or not
+     * @return IP as String
      */
     public String Send_Req_To_DNS_Iterative(String domain) throws IOException {
         return null;

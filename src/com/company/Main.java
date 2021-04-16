@@ -2,7 +2,17 @@ package com.company;
 
 import java.io.IOException;
 import java.util.Scanner;
-
+/**
+ * very simple menu for program !
+ *
+ *
+ *
+ * Network Project
+ *
+ *
+ * @author Seyed Nami Modarressi
+ * @version 1.0
+ */
 public class Main {
 
     public static void main(String[] args) throws IOException {
